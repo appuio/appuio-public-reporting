@@ -36,12 +36,14 @@ build-docker: build-bin ## Build docker image
 ensure-prometheus: .cache/prometheus ## Ensures that Prometheus is installed in the project dir. Downloads it if necessary.
 
 .PHONY: test
-test: export ACR_DB_URL = $(COMPOSE_DB_URL)
+test: export ACR_DB_URL = postgres://user:password@localhost:55432/db?sslmode=disable
+test: COMPOSE_FILE = docker-compose-test.yml
+test: compose_args = -p reporting-test
 test: ensure-prometheus docker-compose-down ping-postgres ## Run full test suite
 	go run github.com/appuio/appuio-cloud-reporting migrate
 	go run github.com/appuio/appuio-cloud-reporting migrate --seed
 	go test ./... -tags integration -coverprofile cover.out -covermode atomic
-	@$(COMPOSE_CMD) down
+	@$(COMPOSE_CMD) $(compose_args) down
 
 .PHONY: fmt
 fmt: ## Run 'go fmt' against code
