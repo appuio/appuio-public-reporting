@@ -68,7 +68,7 @@ clean: ## Cleans local build artifacts
 
 .cache/prometheus:
 	mkdir -p .cache
-	curl -sSLo .cache/prometheus.tar.gz $(PROMETHEUS_DOWNLOAD_LINK)
+	curl -fsSLo .cache/prometheus.tar.gz $(PROMETHEUS_DOWNLOAD_LINK)
 	tar -xzf .cache/prometheus.tar.gz -C .cache
 	mv .cache/prometheus-$(PROMETHEUS_VERSION).$(PROMETHEUS_DIST)-$(PROMETHEUS_ARCH) .cache/prometheus
 	rm -rf .cache/*.tar.gz
