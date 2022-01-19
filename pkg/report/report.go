@@ -20,7 +20,13 @@ type PromQuerier interface {
 
 // Run executes a prometheus query loaded from queries with using the `queryName` and the timestamp.
 // The results of the query are saved in the facts table.
-func Run(tx *sqlx.Tx, prom PromQuerier, queryName string, ts time.Time) error {
+func Run(tx *sqlx.Tx, prom PromQuerier, queryName string, from time.Time) error {
+	from = from.In(time.UTC)
+	if !from.Truncate(time.Hour).Equal(from) {
+		return fmt.Errorf("timestamp should only contain full hours based on UTC, got: %s", from.Format(time.RFC3339Nano))
+	}
+	ts := from.Add(time.Hour)
+
 	var query db.Query
 	if err := sqlx.Get(tx, &query, "SELECT * FROM queries WHERE name = $1 AND (during @> $2::timestamptz)", queryName, ts); err != nil {
 		return fmt.Errorf("failed to load query '%s' at '%s': %w", queryName, ts.Format(time.RFC3339), err)

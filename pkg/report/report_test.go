@@ -64,6 +64,21 @@ func (s *ReportSuite) SetupSuite() {
 			}))
 }
 
+func (s *ReportSuite) TestReport_ReturnsErrorIfTimestampContainsUnitsSmallerOneHour() {
+	t := s.T()
+	prom := s.PrometheusAPIClient()
+	query := s.sampleQuery
+
+	tx, err := s.DB().Beginx()
+	require.NoError(t, err)
+	defer tx.Rollback()
+
+	baseTime := time.Date(2020, time.January, 23, 17, 0, 0, 0, time.UTC)
+	for _, d := range []time.Duration{time.Minute, time.Second, time.Nanosecond} {
+		require.Error(t, report.Run(tx, prom, query.Name, baseTime.Add(d)))
+	}
+}
+
 func (s *ReportSuite) TestReport_RunReportCreatesFact() {
 	t := s.T()
 	prom := s.PrometheusAPIClient()
@@ -73,7 +88,7 @@ func (s *ReportSuite) TestReport_RunReportCreatesFact() {
 	require.NoError(t, err)
 	defer tx.Rollback()
 
-	ts := time.Now()
+	ts := time.Now().Truncate(time.Hour)
 	require.NoError(t, report.Run(tx, prom, query.Name, ts))
 	fact := s.requireFactForQueryIdAndProductSource(tx, query, "my-product:my-cluster", ts)
 	require.Equal(t, float64(defaultQueryReturnValue), fact.Quantity)
@@ -121,7 +136,7 @@ func (s *ReportSuite) TestReport_RerunReportUpdatesFactQuantity() {
 	require.NoError(t, err)
 	defer tx.Rollback()
 
-	ts := time.Now()
+	ts := time.Now().Truncate(time.Hour)
 	require.NoError(t, report.Run(tx, prom, query.Name, ts))
 
 	_, err = tx.Exec("UPDATE queries SET query = $1 WHERE id = $2", fmt.Sprintf(promTestquery, 77), query.Id)
@@ -140,7 +155,7 @@ func (s *ReportSuite) TestReport_ProductSpecificityOfSource() {
 	require.NoError(t, err)
 	defer tx.Rollback()
 
-	ts := time.Now()
+	ts := time.Now().Truncate(time.Hour)
 	require.NoError(t, report.Run(tx, prom, query.Name, ts))
 	s.requireFactForQueryIdAndProductSource(tx, query, "my-product:my-cluster", ts)
 
