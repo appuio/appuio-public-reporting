@@ -18,6 +18,20 @@ type PromQuerier interface {
 	Query(ctx context.Context, query string, ts time.Time) (model.Value, apiv1.Warnings, error)
 }
 
+// RunRange executes prometheus queries like Run() until the `until` timestamp is reached or an error occurred.
+// Returns the number of reports run and a possible error.
+func RunRange(tx *sqlx.Tx, prom PromQuerier, queryName string, from time.Time, until time.Time) (int, error) {
+	n := 0
+	for currentTime := from; until.After(currentTime); currentTime = currentTime.Add(time.Hour) {
+		if err := Run(tx, prom, queryName, currentTime); err != nil {
+			return n, fmt.Errorf("error running report at %s: %w", currentTime.Format(time.RFC3339), err)
+		}
+		n++
+	}
+
+	return n, nil
+}
+
 // Run executes a prometheus query loaded from queries with using the `queryName` and the timestamp.
 // The results of the query are saved in the facts table.
 func Run(tx *sqlx.Tx, prom PromQuerier, queryName string, from time.Time) error {
