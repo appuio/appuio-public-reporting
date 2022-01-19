@@ -20,10 +20,12 @@ type PromQuerier interface {
 
 // RunRange executes prometheus queries like Run() until the `until` timestamp is reached or an error occurred.
 // Returns the number of reports run and a possible error.
-func RunRange(tx *sqlx.Tx, prom PromQuerier, queryName string, from time.Time, until time.Time) (int, error) {
+func RunRange(db *sqlx.DB, prom PromQuerier, queryName string, from time.Time, until time.Time) (int, error) {
 	n := 0
 	for currentTime := from; until.After(currentTime); currentTime = currentTime.Add(time.Hour) {
-		if err := Run(tx, prom, queryName, currentTime); err != nil {
+		if err := inTransaction(db, func(tx *sqlx.Tx) error {
+			return Run(tx, prom, queryName, currentTime)
+		}); err != nil {
 			return n, fmt.Errorf("error running report at %s: %w", currentTime.Format(time.RFC3339), err)
 		}
 		n++
@@ -230,4 +232,17 @@ func getMetricLabel(m model.Metric, name string) (model.LabelValue, error) {
 		return "", fmt.Errorf("expected sample to contain label '%s'", name)
 	}
 	return value, nil
+}
+
+func inTransaction(db *sqlx.DB, cb func(tx *sqlx.Tx) error) error {
+	tx, err := db.Beginx()
+	if err != nil {
+		return fmt.Errorf("error starting transaction: %w", err)
+	}
+	defer tx.Rollback()
+
+	if err := cb(tx); err != nil {
+		return err
+	}
+	return tx.Commit()
 }

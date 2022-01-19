@@ -83,20 +83,19 @@ func (s *ReportSuite) TestReport_RunRange() {
 	t := s.T()
 	prom := s.PrometheusAPIClient()
 	query := s.sampleQuery
-
-	tx, err := s.DB().Beginx()
-	require.NoError(t, err)
-	defer tx.Rollback()
+	tdb := s.DB()
 
 	const hoursToCalculate = 3
 
+	defer tdb.Exec("DELETE FROM facts")
+
 	ts := time.Date(2020, time.January, 23, 17, 0, 0, 0, time.UTC)
-	c, err := report.RunRange(tx, prom, query.Name, ts, ts.Add(hoursToCalculate*time.Hour))
+	c, err := report.RunRange(tdb, prom, query.Name, ts, ts.Add(hoursToCalculate*time.Hour))
 	require.NoError(t, err)
 	require.Equal(t, hoursToCalculate, c)
 
 	var factCount int
-	require.NoError(t, sqlx.Get(tx, &factCount, "SELECT COUNT(*) FROM facts"))
+	require.NoError(t, sqlx.Get(tdb, &factCount, "SELECT COUNT(*) FROM facts"))
 	require.Equal(t, hoursToCalculate, factCount)
 }
 
