@@ -41,14 +41,14 @@ func Run(tx *sqlx.Tx, prom PromQuerier, queryName string, from time.Time) error 
 	if !from.Truncate(time.Hour).Equal(from) {
 		return fmt.Errorf("timestamp should only contain full hours based on UTC, got: %s", from.Format(time.RFC3339Nano))
 	}
-	ts := from.Add(time.Hour)
 
 	var query db.Query
-	if err := sqlx.Get(tx, &query, "SELECT * FROM queries WHERE name = $1 AND (during @> $2::timestamptz)", queryName, ts); err != nil {
-		return fmt.Errorf("failed to load query '%s' at '%s': %w", queryName, ts.Format(time.RFC3339), err)
+	if err := sqlx.Get(tx, &query, "SELECT * FROM queries WHERE name = $1 AND (during @> $2::timestamptz)", queryName, from); err != nil {
+		return fmt.Errorf("failed to load query '%s' at '%s': %w", queryName, from.Format(time.RFC3339), err)
 	}
 
-	res, _, err := prom.Query(context.TODO(), query.Query, ts)
+	// The data in the database is from T to T+1h. Prometheus queries backwards from T to T-1h.
+	res, _, err := prom.Query(context.TODO(), query.Query, from.Add(time.Hour))
 	if err != nil {
 		return fmt.Errorf("failed to query prometheus: %w", err)
 	}
@@ -59,7 +59,7 @@ func Run(tx *sqlx.Tx, prom PromQuerier, queryName string, from time.Time) error 
 	}
 
 	for _, sample := range samples {
-		if err := processSample(tx, ts, query, sample); err != nil {
+		if err := processSample(tx, from, query, sample); err != nil {
 			return fmt.Errorf("failed to process sample: %w", err)
 		}
 	}
