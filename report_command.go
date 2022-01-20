@@ -7,7 +7,6 @@ import (
 
 	"github.com/appuio/appuio-cloud-reporting/pkg/db"
 	"github.com/appuio/appuio-cloud-reporting/pkg/report"
-	"github.com/appuio/appuio-cloud-reporting/pkg/thanos"
 	"github.com/jmoiron/sqlx"
 	"github.com/prometheus/client_golang/api"
 	apiv1 "github.com/prometheus/client_golang/api/prometheus/v1"
@@ -110,8 +109,7 @@ func (cmd *reportCommand) runReport(ctx context.Context, db *sqlx.DB, promClient
 
 func newPrometheusAPIClient(promURL string) (apiv1.API, error) {
 	client, err := api.NewClient(api.Config{
-		Address:      promURL,
-		RoundTripper: &thanos.ThanosRoundTripper{},
+		Address: promURL,
 	})
 	return apiv1.NewAPI(client), err
 }
