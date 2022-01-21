@@ -20,15 +20,20 @@ type PromQuerier interface {
 
 // RunRange executes prometheus queries like Run() until the `until` timestamp is reached or an error occurred.
 // Returns the number of reports run and a possible error.
-func RunRange(db *sqlx.DB, prom PromQuerier, queryName string, from time.Time, until time.Time) (int, error) {
+func RunRange(ctx context.Context, db *sqlx.DB, prom PromQuerier, queryName string, from time.Time, until time.Time, options ...Option) (int, error) {
+	opts := buildOptions(options)
+
 	n := 0
 	for currentTime := from; until.After(currentTime); currentTime = currentTime.Add(time.Hour) {
-		if err := inTransaction(db, func(tx *sqlx.Tx) error {
-			return Run(tx, prom, queryName, currentTime)
+		n++
+		if opts.progressReporter != nil {
+			opts.progressReporter(Progress{currentTime, n})
+		}
+		if err := inTransaction(ctx, db, func(tx *sqlx.Tx) error {
+			return Run(ctx, tx, prom, queryName, currentTime, options...)
 		}); err != nil {
 			return n, fmt.Errorf("error running report at %s: %w", currentTime.Format(time.RFC3339), err)
 		}
-		n++
 	}
 
 	return n, nil
@@ -36,7 +41,9 @@ func RunRange(db *sqlx.DB, prom PromQuerier, queryName string, from time.Time, u
 
 // Run executes a prometheus query loaded from queries with using the `queryName` and the timestamp.
 // The results of the query are saved in the facts table.
-func Run(tx *sqlx.Tx, prom PromQuerier, queryName string, from time.Time) error {
+func Run(ctx context.Context, tx *sqlx.Tx, prom PromQuerier, queryName string, from time.Time, options ...Option) error {
+	opts := buildOptions(options)
+
 	from = from.In(time.UTC)
 	if !from.Truncate(time.Hour).Equal(from) {
 		return fmt.Errorf("timestamp should only contain full hours based on UTC, got: %s", from.Format(time.RFC3339Nano))
@@ -47,8 +54,14 @@ func Run(tx *sqlx.Tx, prom PromQuerier, queryName string, from time.Time) error 
 		return fmt.Errorf("failed to load query '%s' at '%s': %w", queryName, from.Format(time.RFC3339), err)
 	}
 
+	promQCtx := ctx
+	if opts.prometheusQueryTimeout != 0 {
+		ctx, cancel := context.WithTimeout(promQCtx, opts.prometheusQueryTimeout)
+		defer cancel()
+		promQCtx = ctx
+	}
 	// The data in the database is from T to T+1h. Prometheus queries backwards from T to T-1h.
-	res, _, err := prom.Query(context.TODO(), query.Query, from.Add(time.Hour))
+	res, _, err := prom.Query(promQCtx, query.Query, from.Add(time.Hour))
 	if err != nil {
 		return fmt.Errorf("failed to query prometheus: %w", err)
 	}
@@ -234,8 +247,8 @@ func getMetricLabel(m model.Metric, name string) (model.LabelValue, error) {
 	return value, nil
 }
 
-func inTransaction(db *sqlx.DB, cb func(tx *sqlx.Tx) error) error {
-	tx, err := db.Beginx()
+func inTransaction(ctx context.Context, db *sqlx.DB, cb func(tx *sqlx.Tx) error) error {
+	tx, err := db.BeginTxx(ctx, nil)
 	if err != nil {
 		return fmt.Errorf("error starting transaction: %w", err)
 	}
