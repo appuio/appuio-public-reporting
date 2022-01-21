@@ -50,7 +50,7 @@ func Run(ctx context.Context, tx *sqlx.Tx, prom PromQuerier, queryName string, f
 	}
 
 	var query db.Query
-	if err := sqlx.Get(tx, &query, "SELECT * FROM queries WHERE name = $1 AND (during @> $2::timestamptz)", queryName, from); err != nil {
+	if err := sqlx.GetContext(ctx, tx, &query, "SELECT * FROM queries WHERE name = $1 AND (during @> $2::timestamptz)", queryName, from); err != nil {
 		return fmt.Errorf("failed to load query '%s' at '%s': %w", queryName, from.Format(time.RFC3339), err)
 	}
 
@@ -72,7 +72,7 @@ func Run(ctx context.Context, tx *sqlx.Tx, prom PromQuerier, queryName string, f
 	}
 
 	for _, sample := range samples {
-		if err := processSample(tx, from, query, sample); err != nil {
+		if err := processSample(ctx, tx, from, query, sample); err != nil {
 			return fmt.Errorf("failed to process sample: %w", err)
 		}
 	}
@@ -80,7 +80,7 @@ func Run(ctx context.Context, tx *sqlx.Tx, prom PromQuerier, queryName string, f
 	return nil
 }
 
-func processSample(tx *sqlx.Tx, ts time.Time, query db.Query, s *model.Sample) error {
+func processSample(ctx context.Context, tx *sqlx.Tx, ts time.Time, query db.Query, s *model.Sample) error {
 	category, err := getMetricLabel(s.Metric, "category")
 	if err != nil {
 		return err
@@ -96,29 +96,29 @@ func processSample(tx *sqlx.Tx, ts time.Time, query db.Query, s *model.Sample) e
 	}
 
 	var upsertedTenant db.Tenant
-	if upsertTenant(tx, &upsertedTenant, db.Tenant{Source: skey.Tenant}); err != nil {
+	if upsertTenant(ctx, tx, &upsertedTenant, db.Tenant{Source: skey.Tenant}); err != nil {
 		return err
 	}
 
 	var upsertedCategory db.Category
-	if err := upsertCategory(tx, &upsertedCategory, db.Category{Source: string(category)}); err != nil {
+	if err := upsertCategory(ctx, tx, &upsertedCategory, db.Category{Source: string(category)}); err != nil {
 		return err
 	}
 
 	sourceLookup := skey.LookupKeys()
 
 	var product db.Product
-	if err := getBySourceKeyAndTime(tx, &product, pgx.Identifier{"products"}, sourceLookup, ts); err != nil {
+	if err := getBySourceKeyAndTime(ctx, tx, &product, pgx.Identifier{"products"}, sourceLookup, ts); err != nil {
 		return fmt.Errorf("failed to load product for '%s': %w", productLabel, err)
 	}
 
 	var discount db.Discount
-	if err := getBySourceKeyAndTime(tx, &discount, pgx.Identifier{"discounts"}, sourceLookup, ts); err != nil {
+	if err := getBySourceKeyAndTime(ctx, tx, &discount, pgx.Identifier{"discounts"}, sourceLookup, ts); err != nil {
 		return fmt.Errorf("failed to load discount for '%s': %w", productLabel, err)
 	}
 
 	var upsertedDateTime db.DateTime
-	err = upsertDateTime(tx, &upsertedDateTime, db.DateTime{
+	err = upsertDateTime(ctx, tx, &upsertedDateTime, db.DateTime{
 		Timestamp: ts,
 		Year:      ts.Year(),
 		Month:     int(ts.Month()),
@@ -130,7 +130,7 @@ func processSample(tx *sqlx.Tx, ts time.Time, query db.Query, s *model.Sample) e
 	}
 
 	var upsertedFact db.Fact
-	err = upsertFact(tx, &upsertedFact, db.Fact{
+	err = upsertFact(ctx, tx, &upsertedFact, db.Fact{
 		DateTimeId: upsertedDateTime.Id,
 		TenantId:   upsertedTenant.Id,
 		CategoryId: upsertedCategory.Id,
@@ -149,7 +149,7 @@ func processSample(tx *sqlx.Tx, ts time.Time, query db.Query, s *model.Sample) e
 // getBySourceKeyAndTime gets the first record matching a key in keys while preserving the priority or order of the keys.
 // The first key has the highest priority while the last key has the lowest priority.
 // If keys are [a,b,c] and records [a,c] exist a is chosen.
-func getBySourceKeyAndTime(q sqlx.Queryer, dest interface{}, table pgx.Identifier, keys []string, ts time.Time) error {
+func getBySourceKeyAndTime(ctx context.Context, q sqlx.QueryerContext, dest interface{}, table pgx.Identifier, keys []string, ts time.Time) error {
 	const query = `WITH keys AS (
 		-- add a priority to keep track of which key match we should choose
 		-- first key -> prio 1, third key -> prio 3
@@ -163,11 +163,11 @@ func getBySourceKeyAndTime(q sqlx.Queryer, dest interface{}, table pgx.Identifie
 		WHERE during @> $2::timestamptz
 		ORDER BY prio
 		LIMIT 1`
-	return sqlx.Get(q, dest, strings.ReplaceAll(query, "{{table}}", table.Sanitize()), keys, ts)
+	return sqlx.GetContext(ctx, q, dest, strings.ReplaceAll(query, "{{table}}", table.Sanitize()), keys, ts)
 }
 
-func upsertFact(tx *sqlx.Tx, dst *db.Fact, src db.Fact) error {
-	err := db.GetNamed(tx, dst,
+func upsertFact(ctx context.Context, tx *sqlx.Tx, dst *db.Fact, src db.Fact) error {
+	err := db.GetNamedContext(ctx, tx, dst,
 		`INSERT INTO facts
 				(date_time_id,query_id,tenant_id,category_id,product_id,discount_id,quantity)
 			VALUES
@@ -182,8 +182,8 @@ func upsertFact(tx *sqlx.Tx, dst *db.Fact, src db.Fact) error {
 	return nil
 }
 
-func upsertCategory(tx *sqlx.Tx, dst *db.Category, src db.Category) error {
-	err := db.GetNamed(tx, dst,
+func upsertCategory(ctx context.Context, tx *sqlx.Tx, dst *db.Category, src db.Category) error {
+	err := db.GetNamedContext(ctx, tx, dst,
 		`WITH
 				existing AS (
 					SELECT * FROM categories WHERE source = :source
@@ -201,8 +201,8 @@ func upsertCategory(tx *sqlx.Tx, dst *db.Category, src db.Category) error {
 	return nil
 }
 
-func upsertTenant(tx *sqlx.Tx, dst *db.Tenant, src db.Tenant) error {
-	err := db.GetNamed(tx, dst,
+func upsertTenant(ctx context.Context, tx *sqlx.Tx, dst *db.Tenant, src db.Tenant) error {
+	err := db.GetNamedContext(ctx, tx, dst,
 		`WITH
 				existing AS (
 					SELECT * FROM tenants WHERE source = :source
@@ -220,8 +220,8 @@ func upsertTenant(tx *sqlx.Tx, dst *db.Tenant, src db.Tenant) error {
 	return nil
 }
 
-func upsertDateTime(tx *sqlx.Tx, dst *db.DateTime, src db.DateTime) error {
-	err := db.GetNamed(tx, dst,
+func upsertDateTime(ctx context.Context, tx *sqlx.Tx, dst *db.DateTime, src db.DateTime) error {
+	err := db.GetNamedContext(ctx, tx, dst,
 		`WITH
 		existing AS (
 			SELECT * FROM date_times WHERE year = :year AND month = :month AND day = :day AND hour = :hour
