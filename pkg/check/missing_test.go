@@ -70,10 +70,10 @@ func (s *TestSuite) requireMissingTestEntries(t *testing.T, tdb *sqlx.Tx) []chec
 
 	return []check.MissingField{
 		{Table: "categories", MissingField: "target", ID: catEmptyTarget.Id, Source: catEmptyTarget.Source},
-		{Table: "tenants", MissingField: "target", ID: tenantEmptyTarget.Id, Source: tenantEmptyTarget.Source},
-		{Table: "products", MissingField: "target", ID: productEmptyTarget.Id, Source: productEmptyTarget.Source},
 		{Table: "products", MissingField: "amount", ID: productEmptyAmountAndUnit.Id, Source: productEmptyAmountAndUnit.Source},
+		{Table: "products", MissingField: "target", ID: productEmptyTarget.Id, Source: productEmptyTarget.Source},
 		{Table: "products", MissingField: "unit", ID: productEmptyAmountAndUnit.Id, Source: productEmptyAmountAndUnit.Source},
+		{Table: "tenants", MissingField: "target", ID: tenantEmptyTarget.Id, Source: tenantEmptyTarget.Source},
 	}
 }
 
