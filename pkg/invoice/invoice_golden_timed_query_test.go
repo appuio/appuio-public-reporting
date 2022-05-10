@@ -31,6 +31,7 @@ func (s *InvoiceGoldenSuite) TestInvoiceGolden_TimedQuery() {
 	old, err := db.CreateQuery(tdb, db.Query{
 		Name:        "test",
 		Description: "old invalid query",
+		DisplayName: "Old Query",
 		Query:       "old-test",
 		Unit:        "tps",
 		During:      timerange(t, "-", "2022-02-25"),
@@ -46,6 +47,7 @@ func (s *InvoiceGoldenSuite) TestInvoiceGolden_TimedQuery() {
 	q, err := db.CreateQuery(tdb, db.Query{
 		Name:        "test",
 		Description: "test description",
+		DisplayName: "New Query",
 		Query:       "test",
 		Unit:        "tps",
 		During:      timerange(t, "2022-02-25", "2022-03-05"),
@@ -62,6 +64,7 @@ func (s *InvoiceGoldenSuite) TestInvoiceGolden_TimedQuery() {
 		},
 		Name:        "sub-test",
 		Description: "A sub query of Test",
+		DisplayName: "New Sub Query",
 		Query:       "sub-test",
 		Unit:        "tps",
 		During:      db.InfiniteRange(),
@@ -78,6 +81,7 @@ func (s *InvoiceGoldenSuite) TestInvoiceGolden_TimedQuery() {
 		},
 		Name:        "sub-test2",
 		Description: "An other sub query of Test that stops early",
+		DisplayName: "Other new Sub Query",
 		Query:       "sub-test2",
 		Unit:        "tps",
 		During:      timerange(t, "2022-02-25", "2022-03-02"),
@@ -92,6 +96,7 @@ func (s *InvoiceGoldenSuite) TestInvoiceGolden_TimedQuery() {
 	newQ, err := db.CreateQuery(tdb, db.Query{
 		Name:        "test",
 		Description: "new nicer query",
+		DisplayName: "Better Query",
 		Query:       "nice-test",
 		Unit:        "tps",
 		During:      timerange(t, "2022-03-05", "-"),
@@ -108,6 +113,7 @@ func (s *InvoiceGoldenSuite) TestInvoiceGolden_TimedQuery() {
 		},
 		Name:        "new-sub-test",
 		Description: "A better sub query of Test",
+		DisplayName: "Simpler Sub Query",
 		Query:       "new-sub-test",
 		Unit:        "tps",
 		During:      db.InfiniteRange(),

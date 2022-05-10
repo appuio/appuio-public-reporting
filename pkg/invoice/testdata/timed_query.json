@@ -13,6 +13,7 @@
 				"Items": [
 					{
 						"Description": "new nicer query",
+						"DisplayName": "Better Query",
 						"QueryName": "test",
 						"Source": "my-product",
 						"Target": "",
@@ -27,6 +28,7 @@
 						"SubItems": [
 							{
 								"Description": "A better sub query of Test",
+								"DisplayName": "Simpler Sub Query",
 								"QueryName": "new-sub-test",
 								"Quantity": 480,
 								"QuantityMin": 4,
@@ -38,6 +40,7 @@
 					},
 					{
 						"Description": "test description",
+						"DisplayName": "New Query",
 						"QueryName": "test",
 						"Source": "my-product",
 						"Target": "",
@@ -52,6 +55,7 @@
 						"SubItems": [
 							{
 								"Description": "A sub query of Test",
+								"DisplayName": "New Sub Query",
 								"QueryName": "sub-test",
 								"Quantity": 384,
 								"QuantityMin": 4,
@@ -61,6 +65,7 @@
 							},
 							{
 								"Description": "An other sub query of Test that stops early",
+								"DisplayName": "Other new Sub Query",
 								"QueryName": "sub-test2",
 								"Quantity": 168,
 								"QuantityMin": 7,
@@ -90,6 +95,7 @@
 				"Items": [
 					{
 						"Description": "new nicer query",
+						"DisplayName": "Better Query",
 						"QueryName": "test",
 						"Source": "my-product",
 						"Target": "",
@@ -104,6 +110,7 @@
 						"SubItems": [
 							{
 								"Description": "A better sub query of Test",
+								"DisplayName": "Simpler Sub Query",
 								"QueryName": "new-sub-test",
 								"Quantity": 240,
 								"QuantityMin": 2,
@@ -115,6 +122,7 @@
 					},
 					{
 						"Description": "test description",
+						"DisplayName": "New Query",
 						"QueryName": "test",
 						"Source": "my-product",
 						"Target": "",
@@ -129,6 +137,7 @@
 						"SubItems": [
 							{
 								"Description": "A sub query of Test",
+								"DisplayName": "New Sub Query",
 								"QueryName": "sub-test",
 								"Quantity": 192,
 								"QuantityMin": 2,
@@ -138,6 +147,7 @@
 							},
 							{
 								"Description": "An other sub query of Test that stops early",
+								"DisplayName": "Other new Sub Query",
 								"QueryName": "sub-test2",
 								"Quantity": 0,
 								"QuantityMin": 0,

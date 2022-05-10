@@ -13,6 +13,7 @@
 				"Items": [
 					{
 						"Description": "test description",
+						"DisplayName": "Test",
 						"QueryName": "test",
 						"Source": "my-product",
 						"Target": "",
@@ -27,6 +28,7 @@
 						"SubItems": [
 							{
 								"Description": "A sub query of Test",
+								"DisplayName": "Sub Test",
 								"QueryName": "sub-test",
 								"Quantity": 864,
 								"QuantityMin": 4,
@@ -45,6 +47,7 @@
 				"Items": [
 					{
 						"Description": "test description",
+						"DisplayName": "Test",
 						"QueryName": "test",
 						"Source": "my-product",
 						"Target": "",
@@ -59,6 +62,7 @@
 						"SubItems": [
 							{
 								"Description": "A sub query of Test",
+								"DisplayName": "Sub Test",
 								"QueryName": "sub-test",
 								"Quantity": 864,
 								"QuantityMin": 4,
@@ -77,6 +81,7 @@
 				"Items": [
 					{
 						"Description": "test description",
+						"DisplayName": "Test",
 						"QueryName": "test",
 						"Source": "my-product",
 						"Target": "",
@@ -91,6 +96,7 @@
 						"SubItems": [
 							{
 								"Description": "A sub query of Test",
+								"DisplayName": "Sub Test",
 								"QueryName": "sub-test",
 								"Quantity": 864,
 								"QuantityMin": 4,
@@ -120,6 +126,7 @@
 				"Items": [
 					{
 						"Description": "test description",
+						"DisplayName": "Test",
 						"QueryName": "test",
 						"Source": "my-product",
 						"Target": "",
@@ -134,6 +141,7 @@
 						"SubItems": [
 							{
 								"Description": "A sub query of Test",
+								"DisplayName": "Sub Test",
 								"QueryName": "sub-test",
 								"Quantity": 432,
 								"QuantityMin": 2,

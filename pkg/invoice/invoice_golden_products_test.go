@@ -50,6 +50,7 @@ func (s *InvoiceGoldenSuite) TestInvoiceGolden_Products() {
 	q, err := db.CreateQuery(tdb, db.Query{
 		Name:        "test",
 		Description: "test description",
+		DisplayName: "Test",
 		Query:       "test",
 		Unit:        "tps",
 		During:      db.InfiniteRange(),
@@ -69,6 +70,7 @@ func (s *InvoiceGoldenSuite) TestInvoiceGolden_Products() {
 		},
 		Name:        "sub-test",
 		Description: "A sub query of Test",
+		DisplayName: "Test",
 		Query:       "sub-test",
 		Unit:        "tps",
 		During:      db.InfiniteRange(),

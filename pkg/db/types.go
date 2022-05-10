@@ -13,6 +13,7 @@ type Query struct {
 	ParentID sql.NullString `db:"parent_id"`
 
 	Name        string
+	DisplayName string `db:"display_name"`
 	Description string
 	Query       string
 	Unit        string
@@ -26,7 +27,7 @@ type Query struct {
 func CreateQuery(p NamedPreparer, in Query) (Query, error) {
 	var query Query
 	err := GetNamed(p, &query,
-		"INSERT INTO queries (name,description,query,unit,during,parent_id) VALUES (:name,:description,:query,:unit,:during,:parent_id) RETURNING *", in)
+		"INSERT INTO queries (name,description,display_name,query,unit,during,parent_id) VALUES (:name,:description,:display_name,:query,:unit,:during,:parent_id) RETURNING *", in)
 	return query, err
 }
 

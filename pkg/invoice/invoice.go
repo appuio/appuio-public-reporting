@@ -36,6 +36,8 @@ type Category struct {
 type Item struct {
 	// Description describes the line item.
 	Description string
+	// DisplayName is a short human readable name for the line item
+	DisplayName string `db:"display_name"`
 	// QueryName is the name of the query that generated this line item
 	QueryName string
 	// Product describes the product this item is based on.
@@ -66,6 +68,8 @@ type Item struct {
 type SubItem struct {
 	// Description describes the line item.
 	Description string
+	// DisplayName is a short human readable name for the line item
+	DisplayName string `db:"display_name"`
 	// QueryName is the name of the query that generated this line item
 	QueryName string
 	// Quantity represents the amount of the resource used.
@@ -169,7 +173,7 @@ func itemsForCategory(ctx context.Context, tx *sqlx.Tx, tenant db.Tenant, catego
 	var items []rawItem
 	err := sqlx.SelectContext(ctx, tx, &items,
 		`SELECT  queries.id as query_id, queries.parent_id as parent_query_id, discounts.id as discount_id,
-				queries.description, queries.name as queryName,
+				queries.description, queries.name as queryName, queries.display_name,
 				SUM(facts.quantity) as quantity, MIN(facts.quantity) as quantitymin, AVG(facts.quantity) as quantityavg, MAX(facts.quantity) as quantitymax,
 				queries.unit, products.amount AS pricePerUnit, discounts.discount,
 				products.id as product_ref_id, products.source as product_ref_source, COALESCE(products.target,''::text) as product_ref_target,
@@ -213,6 +217,7 @@ func buildItemHierarchy(items []rawItem) []Item {
 				parent.SubItems = append(parent.SubItems, SubItem{
 					Description: item.Description,
 					QueryName:   item.QueryName,
+					DisplayName: item.DisplayName,
 					Quantity:    item.Quantity,
 					QuantityMin: item.QuantityMin,
 					QuantityAvg: item.QuantityAvg,

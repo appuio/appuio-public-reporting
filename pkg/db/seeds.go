@@ -29,18 +29,21 @@ var DefaultQueries = []Query{
 	{
 		Name:        "appuio_cloud_memory",
 		Description: "Memory usage (maximum of requested and used memory) aggregated by namespace",
+		DisplayName: "Compute",
 		Query:       appuioCloudMemoryQuery,
 		Unit:        "MiB",
 		subQueries: []Query{
 			{
 				Name:        "appuio_cloud_memory_subquery_memory_request",
 				Description: "Memory request aggregated by namespace",
+				DisplayName: "Memory Requests",
 				Query:       appuioCloudMemorySubQueryMemory,
 				Unit:        "MiB",
 			},
 			{
 				Name:        "appuio_cloud_memory_subquery_cpu_request",
 				Description: "CPU requests exceeding the fair use limit, converted to the memory request equivalent",
+				DisplayName: "CPU Requests",
 				Query:       appuioCloudMemorySubQueryCPU,
 				Unit:        "MiB",
 			},
@@ -49,11 +52,13 @@ var DefaultQueries = []Query{
 	{
 		Name:        "appuio_cloud_loadbalancer",
 		Description: "Number of services of type load balancer",
+		DisplayName: "Service Type LoadBalancer",
 		Query:       appuioCloudLoadbalancerQuery,
 	},
 	{
 		Name:        "appuio_cloud_persistent_storage",
 		Description: "Persistent storage usage aggregated by namespace and storageclass",
+		DisplayName: "Persistent Storage",
 		Query:       appuioCloudPersistentStorageQuery,
 		Unit:        "GiB",
 	},

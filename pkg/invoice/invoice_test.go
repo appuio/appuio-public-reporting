@@ -87,20 +87,22 @@ func (s *InvoiceSuite) SetupSuite() {
 
 	require.NoError(t,
 		db.GetNamed(tdb, &s.memoryQuery,
-			"INSERT INTO queries (name,description,unit,query) VALUES (:name,:description,:unit,:query) RETURNING *", db.Query{
+			"INSERT INTO queries (name,description,display_name,unit,query) VALUES (:name,:description,:display_name,:unit,:query) RETURNING *", db.Query{
 				Name:        "test_memory",
 				Description: "Memory",
+				DisplayName: "Memory Usage",
 				Unit:        "MiB",
 			}))
 	require.NoError(t,
 		db.GetNamed(tdb, &s.memorySubQuery,
-			"INSERT INTO queries (parent_id,name,description,unit,query) VALUES (:parent_id,:name,:description,:unit,:query) RETURNING *", db.Query{
+			"INSERT INTO queries (parent_id,name,description,display_name,unit,query) VALUES (:parent_id,:name,:description,:display_name,:unit,:query) RETURNING *", db.Query{
 				ParentID: sql.NullString{
 					String: s.memoryQuery.Id,
 					Valid:  true,
 				},
 				Name:        "test_sub_memory",
 				Description: "Sub Memory",
+				DisplayName: "Memory Requests",
 				Unit:        "MiB",
 			}))
 	require.NoError(t,
@@ -304,6 +306,7 @@ func (s *InvoiceSuite) TestInvoice_Generate() {
 						{
 							Description: s.memoryQuery.Description,
 							QueryName:   s.memoryQuery.Name,
+							DisplayName: s.memoryQuery.DisplayName,
 							ProductRef: invoice.ProductRef{
 								Source: s.memoryProduct.Source,
 								Target: s.memoryProduct.Target.String,
@@ -320,6 +323,7 @@ func (s *InvoiceSuite) TestInvoice_Generate() {
 								{
 									Description: s.memorySubQuery.Description,
 									QueryName:   s.memorySubQuery.Name,
+									DisplayName: s.memorySubQuery.DisplayName,
 									Quantity:    subMemQuantity,
 									QuantityMin: subMemQuantity,
 									QuantityAvg: subMemQuantity,
@@ -331,6 +335,7 @@ func (s *InvoiceSuite) TestInvoice_Generate() {
 						{
 							Description: s.memoryQuery.Description,
 							QueryName:   s.memoryQuery.Name,
+							DisplayName: s.memoryQuery.DisplayName,
 							ProductRef: invoice.ProductRef{
 								Source: s.memoryProduct.Source,
 								Target: s.memoryProduct.Target.String,
@@ -347,6 +352,7 @@ func (s *InvoiceSuite) TestInvoice_Generate() {
 								{
 									Description: s.memorySubQuery.Description,
 									QueryName:   s.memorySubQuery.Name,
+									DisplayName: s.memorySubQuery.DisplayName,
 									Quantity:    subMemQuantity,
 									QuantityMin: subMemQuantity,
 									QuantityAvg: subMemQuantity,
@@ -405,6 +411,7 @@ func (s *InvoiceSuite) TestInvoice_Generate() {
 						{
 							Description: s.memoryQuery.Description,
 							QueryName:   s.memoryQuery.Name,
+							DisplayName: s.memoryQuery.DisplayName,
 							ProductRef: invoice.ProductRef{
 								Source: s.memoryProduct.Source,
 								Target: s.memoryProduct.Target.String,
@@ -421,6 +428,7 @@ func (s *InvoiceSuite) TestInvoice_Generate() {
 								{
 									Description: s.memorySubQuery.Description,
 									QueryName:   s.memorySubQuery.Name,
+									DisplayName: s.memorySubQuery.DisplayName,
 									Quantity:    subMemP12Quantity * stampsInTimerange,
 									QuantityMin: subMemP12Quantity,
 									QuantityAvg: subMemP12Quantity,
@@ -448,6 +456,7 @@ func (s *InvoiceSuite) TestInvoice_Generate() {
 						{
 							Description: s.memoryQuery.Description,
 							QueryName:   s.memoryQuery.Name,
+							DisplayName: s.memoryQuery.DisplayName,
 							ProductRef: invoice.ProductRef{
 								Source: s.memoryProduct.Source,
 								Target: s.memoryProduct.Target.String,
