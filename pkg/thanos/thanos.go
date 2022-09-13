@@ -1,16 +1,20 @@
 package thanos
 
-import "net/http"
+import (
+	"net/http"
+	"strconv"
+)
 
-// NoPartialResponseRoundTripper adds a new RoundTripper to the chain that sets the partial_response query parameter to false.
-type NoPartialResponseRoundTripper struct {
+// PartialResponseRoundTripper adds a new RoundTripper to the chain that sets the partial_response query parameter to the value of Allow.
+type PartialResponseRoundTripper struct {
 	http.RoundTripper
+	Allow bool
 }
 
 // RoundTrip implements the RoundTripper interface.
-func (t *NoPartialResponseRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
+func (t *PartialResponseRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
 	q := req.URL.Query()
-	q.Set("partial_response", "false")
+	q.Set("partial_response", strconv.FormatBool(t.Allow))
 	req.URL.RawQuery = q.Encode()
 	return t.RoundTripper.RoundTrip(req)
 }
