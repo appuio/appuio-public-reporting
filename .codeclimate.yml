@@ -2,12 +2,6 @@ version: "2"
 plugins:
   shellcheck:
     enabled: true
-  govet:
-    enabled: false
-  gofmt:
-    enabled: false
-  golint:
-    enabled: false
   fixme:
     enabled: true
 exclude_patterns:
