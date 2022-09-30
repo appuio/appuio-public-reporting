@@ -21,7 +21,7 @@ sum_over_time(
           )
           *
           # Join namespace label `label_appuio_io_organization` as `tenant_id`.
-          on(cluster_id, namespace, label_kubernetes_io_arch)
+          on(cluster_id, namespace)
           group_left(tenant_id)
           label_replace(
             kube_namespace_labels{label_appuio_io_organization=~".+"},
