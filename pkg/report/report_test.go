@@ -294,6 +294,6 @@ func (s *ReportSuite) requireFactForQueryIdAndProductSource(dbq sqlx.Queryer, q 
 	return fact
 }
 
-func infiniteRange() pgtype.Tstzrange {
+func infiniteRange() pgtype.Range[pgtype.Timestamptz] {
 	return db.Timerange(db.MustTimestamp(pgtype.NegativeInfinity), db.MustTimestamp(pgtype.Infinity))
 }

@@ -18,7 +18,7 @@ func TestTimerange(t *testing.T) {
 	upper := db.MustTimestamp(pgtype.Infinity)
 	subject := db.Timerange(lower, upper)
 
-	assert.Equal(t, subject.Status, pgtype.Present, "new timetamp should be present")
+	assert.Equal(t, subject.Valid, true, "new timetamp should be present")
 	assert.Equal(t, subject.Lower, lower)
 	assert.Equal(t, subject.Upper, upper)
 	assert.Equal(t, subject.LowerType, pgtype.Inclusive, "lower bound should be inclusive")

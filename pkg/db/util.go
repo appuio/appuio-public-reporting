@@ -59,7 +59,7 @@ func SelectNamedContext(ctx context.Context, p sqlx.ExtContext, dest interface{}
 }
 
 // InfiniteRange returns an infinite PostgreSQL timerange [-Inf,Inf).
-func InfiniteRange() pgtype.Tstzrange {
+func InfiniteRange() pgtype.Range[pgtype.Timestamptz] {
 	return Timerange(MustTimestamp(pgtype.NegativeInfinity), MustTimestamp(pgtype.Infinity))
 }
 

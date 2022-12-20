@@ -17,7 +17,7 @@ type Query struct {
 	Query       string
 	Unit        string
 
-	During pgtype.Tstzrange
+	During pgtype.Range[pgtype.Timestamptz]
 
 	subQueries []Query
 }
@@ -56,7 +56,7 @@ type Product struct {
 	Amount float64
 	Unit   string
 
-	During pgtype.Tstzrange
+	During pgtype.Range[pgtype.Timestamptz]
 }
 
 // CreateProduct creates the given product
@@ -75,7 +75,7 @@ type Discount struct {
 	Source   string
 	Discount float64
 
-	During pgtype.Tstzrange
+	During pgtype.Range[pgtype.Timestamptz]
 }
 
 // CreateDiscount creates the given discount
@@ -125,9 +125,16 @@ func BuildDateTime(ts time.Time) DateTime {
 // Timestamp creates a Postgres timestamp from the given value.
 // Valid values are nil, pgtype.Infinity/pgtype.NegativeInfinity, and a time.Time object.
 func Timestamp(from interface{}) (pgtype.Timestamptz, error) {
-	ts := pgtype.Timestamptz{}
-	err := ts.Set(from)
-	return ts, err
+	if from == nil {
+		return pgtype.Timestamptz{}, nil
+	}
+	if from, ok := from.(pgtype.InfinityModifier); ok {
+		return pgtype.Timestamptz{Valid: true, InfinityModifier: from}, nil
+	}
+	if from, ok := from.(time.Time); ok {
+		return pgtype.Timestamptz{Valid: true, Time: from}, nil
+	}
+	return pgtype.Timestamptz{}, fmt.Errorf("unsupported type %T", from)
 }
 
 // MustTimestamp creates a Postgres timestamp from the given value.
@@ -142,12 +149,12 @@ func MustTimestamp(from interface{}) pgtype.Timestamptz {
 }
 
 // Timerange creates a Postgres timerange from two Postgres timestamps with [lower,upper) bounds.
-func Timerange(lower, upper pgtype.Timestamptz) pgtype.Tstzrange {
-	return pgtype.Tstzrange{
+func Timerange(lower, upper pgtype.Timestamptz) pgtype.Range[pgtype.Timestamptz] {
+	return pgtype.Range[pgtype.Timestamptz]{
 		Lower:     lower,
 		LowerType: pgtype.Inclusive,
 		Upper:     upper,
 		UpperType: pgtype.Exclusive,
-		Status:    pgtype.Present,
+		Valid:     true,
 	}
 }

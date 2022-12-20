@@ -112,7 +112,7 @@ func invoiceEqualsGolden(t *testing.T, goldenFile string, actual []invoice.Invoi
 	})
 }
 
-func timerange(t *testing.T, from, to string) pgtype.Tstzrange {
+func timerange(t *testing.T, from, to string) pgtype.Range[pgtype.Timestamptz] {
 	var fromTs pgtype.Timestamptz
 	if from == "-" {
 		fromTs = db.MustTimestamp(pgtype.NegativeInfinity)
