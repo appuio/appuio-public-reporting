@@ -15,7 +15,7 @@ import (
 	"github.com/appuio/appuio-cloud-reporting/pkg/invoice"
 	"github.com/appuio/appuio-cloud-reporting/pkg/report"
 	"github.com/appuio/appuio-cloud-reporting/pkg/sourcekey"
-	"github.com/jackc/pgtype"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jmoiron/sqlx"
 	apiv1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	"github.com/prometheus/common/model"
@@ -112,7 +112,7 @@ func invoiceEqualsGolden(t *testing.T, goldenFile string, actual []invoice.Invoi
 	})
 }
 
-func timerange(t *testing.T, from, to string) pgtype.Tstzrange {
+func timerange(t *testing.T, from, to string) pgtype.Range[pgtype.Timestamptz] {
 	var fromTs pgtype.Timestamptz
 	if from == "-" {
 		fromTs = db.MustTimestamp(pgtype.NegativeInfinity)

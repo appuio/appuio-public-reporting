@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/jackc/pgtype"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
@@ -294,6 +294,6 @@ func (s *ReportSuite) requireFactForQueryIdAndProductSource(dbq sqlx.Queryer, q 
 	return fact
 }
 
-func infiniteRange() pgtype.Tstzrange {
+func infiniteRange() pgtype.Range[pgtype.Timestamptz] {
 	return db.Timerange(db.MustTimestamp(pgtype.NegativeInfinity), db.MustTimestamp(pgtype.Infinity))
 }
