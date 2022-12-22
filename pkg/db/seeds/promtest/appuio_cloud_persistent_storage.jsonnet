@@ -62,14 +62,11 @@ local baseCalculatedLabels = {
 
     c.test('unrelated kube_persistentvolume_info changes do not throw errors - there is an overlap since series go stale only after a few missed scrapes',
            baseSeries {
-             pvInfo+: {
-               values: '1x10 _x10 stale',
-             },
              pvInfoUpdated: self.pvInfo {
                _labels+:: {
                  csi_volume_handle: '672004be-a86b-44e0-b446-1255a1f8b340',
                },
-               values: '_x5 1x15',
+               values: '_x5 1x5',
              },
            },
            query,
