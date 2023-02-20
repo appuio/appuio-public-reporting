@@ -116,8 +116,11 @@ func processSample(ctx context.Context, tx *sqlx.Tx, ts time.Time, query db.Quer
 	}
 
 	var upsertedTenant db.Tenant
-	if upsertTenant(ctx, tx, &upsertedTenant, db.Tenant{Source: skey.Tenant}); err != nil {
-		return err
+	err = upsertTenant(ctx, tx, &upsertedTenant, db.Tenant{
+		Source: skey.Tenant,
+	})
+	if err != nil {
+		return fmt.Errorf("failed to upsert tenant '%s': %w", skey.Tenant, err)
 	}
 
 	var upsertedCategory db.Category
