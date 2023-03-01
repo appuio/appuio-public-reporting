@@ -46,7 +46,6 @@ func (s *TestSuite) requireMissingTestEntries(t *testing.T, tdb *sqlx.Tx) []chec
 		db.GetNamed(tdb, &tenantEmptyTarget,
 			"INSERT INTO tenants (source,target) VALUES (:source,:target) RETURNING *", db.Tenant{
 				Source: "tricell",
-				During: db.InfiniteRange(),
 			}))
 
 	var productEmptyTarget db.Product
