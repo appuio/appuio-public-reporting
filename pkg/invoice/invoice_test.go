@@ -125,17 +125,15 @@ func (s *InvoiceSuite) SetupSuite() {
 
 	require.NoError(t,
 		db.GetNamed(tdb, &s.umbrellaCorpTenant,
-			"INSERT INTO tenants (source,target,during) VALUES (:source,:target,:during) RETURNING *", db.Tenant{
+			"INSERT INTO tenants (source,target) VALUES (:source,:target) RETURNING *", db.Tenant{
 				Source: "umbrellacorp",
 				Target: sql.NullString{Valid: true, String: "23465-umbrellacorp"},
-				During: db.InfiniteRange(),
 			}))
 	require.NoError(t,
 		db.GetNamed(tdb, &s.tricellTenant,
-			"INSERT INTO tenants (source,target,during) VALUES (:source,:target,:during) RETURNING *", db.Tenant{
+			"INSERT INTO tenants (source,target) VALUES (:source,:target) RETURNING *", db.Tenant{
 				Source: "tricell",
 				Target: sql.NullString{Valid: true, String: "98756-tricell"},
-				During: db.InfiniteRange(),
 			}))
 
 	require.NoError(t,
