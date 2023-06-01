@@ -100,6 +100,7 @@ type Product struct {
 	// See package `sourcekey` for more information.
 	Source string
 	Target sql.NullString
+	Type   sql.NullString
 	Amount float64
 	Unit   string
 
@@ -118,7 +119,7 @@ func (p Product) ForeignKeyName() string {
 func CreateProduct(p NamedPreparer, in Product) (Product, error) {
 	var product Product
 	err := GetNamed(p, &product,
-		"INSERT INTO products (source,target,amount,unit,during) VALUES (:source,:target,:amount,:unit,:during) RETURNING *", in)
+		"INSERT INTO products (source,target,type,amount,unit,during) VALUES (:source,:target,:type,:amount,:unit,:during) RETURNING *", in)
 	return product, err
 }
 

@@ -273,7 +273,7 @@ func (s *ReportSuite) createProduct(p db.NamedPreparer, source string) db.Produc
 	var product db.Product
 	require.NoError(s.T(),
 		db.GetNamed(p, &product,
-			"INSERT INTO products (source,target,amount,unit,during) VALUES (:source,:target,:amount,:unit,:during) RETURNING *", db.Product{
+			"INSERT INTO products (source,target,type,amount,unit,during) VALUES (:source,:target,:type,:amount,:unit,:during) RETURNING *", db.Product{
 				Source: source,
 				Amount: 1,
 				Unit:   "tps",

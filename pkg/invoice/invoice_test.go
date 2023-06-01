@@ -50,14 +50,14 @@ func (s *InvoiceSuite) SetupSuite() {
 
 	require.NoError(s.T(),
 		db.GetNamed(tdb, &s.memoryProduct,
-			"INSERT INTO products (source,target,amount,unit,during) VALUES (:source,:target,:amount,:unit,:during) RETURNING *", db.Product{
+			"INSERT INTO products (source,target,type,amount,unit,during) VALUES (:source,:target,:type,:amount,:unit,:during) RETURNING *", db.Product{
 				Source: "test_memory:us-rac-2",
 				Amount: 3,
 				During: db.InfiniteRange(),
 			}))
 	require.NoError(s.T(),
 		db.GetNamed(tdb, &s.storageProduct,
-			"INSERT INTO products (source,target,amount,unit,during) VALUES (:source,:target,:amount,:unit,:during) RETURNING *", db.Product{
+			"INSERT INTO products (source,target,type,amount,unit,during) VALUES (:source,:target,:type,:amount,:unit,:during) RETURNING *", db.Product{
 				Source: "test_storage:us-rac-2",
 				Amount: 5,
 				During: db.InfiniteRange(),
