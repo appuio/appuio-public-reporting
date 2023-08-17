@@ -63,9 +63,9 @@ func (q fakeQuerier) Query(ctx context.Context, query string, ts time.Time, _ ..
 		}
 		res = append(res, &model.Sample{
 			Metric: map[model.LabelName]model.LabelValue{
-				"product":  model.LabelValue(k),
-				"category": model.LabelValue(fmt.Sprintf("%s:%s", sk.Zone, sk.Namespace)),
-				"tenant":   model.LabelValue(sk.Tenant),
+				"product":   model.LabelValue(k),
+				"category":  model.LabelValue(fmt.Sprintf("%s:%s", sk.Parts[1], sk.Parts[3])),
+				"tenant_id": model.LabelValue(sk.Parts[2]),
 			},
 			Value: s.Value,
 		})

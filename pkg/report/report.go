@@ -111,6 +111,11 @@ func processSample(ctx context.Context, tx *sqlx.Tx, ts time.Time, query db.Quer
 		return err
 	}
 
+	tenantId, err := getMetricLabel(s.Metric, "tenant_id")
+	if err != nil {
+		return err
+	}
+
 	skey, err := sourcekey.Parse(string(productLabel))
 	if err != nil {
 		return fmt.Errorf("failed to parse source key from product label: %w", err)
@@ -118,10 +123,10 @@ func processSample(ctx context.Context, tx *sqlx.Tx, ts time.Time, query db.Quer
 
 	var upsertedTenant db.Tenant
 	err = upsertTenant(ctx, tx, &upsertedTenant, db.Tenant{
-		Source: skey.Tenant,
+		Source: string(tenantId),
 	}, ts)
 	if err != nil {
-		return fmt.Errorf("failed to upsert tenant '%s': %w", skey.Tenant, err)
+		return fmt.Errorf("failed to upsert tenant '%s': %w", string(tenantId), err)
 	}
 
 	var upsertedCategory db.Category

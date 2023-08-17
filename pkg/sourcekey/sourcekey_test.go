@@ -17,12 +17,7 @@ func TestParseWithClass(t *testing.T) {
 	k, err := sourcekey.Parse("appuio_cloud_storage:c-appuio-cloudscale-lpg-2:acme-corp:sparkling-sound-1234:ssd")
 	require.NoError(t, err)
 	require.Equal(t, sourcekey.SourceKey{
-		Query:     "appuio_cloud_storage",
-		Zone:      "c-appuio-cloudscale-lpg-2",
-		Tenant:    "acme-corp",
-		Namespace: "sparkling-sound-1234",
-		Class:     "ssd",
-		Parts:     []string{"appuio_cloud_storage", "c-appuio-cloudscale-lpg-2", "acme-corp", "sparkling-sound-1234", "ssd"},
+		Parts: []string{"appuio_cloud_storage", "c-appuio-cloudscale-lpg-2", "acme-corp", "sparkling-sound-1234", "ssd"},
 	}, k)
 }
 
@@ -30,11 +25,7 @@ func TestParseWithoutClass(t *testing.T) {
 	k, err := sourcekey.Parse("appuio_cloud_storage:c-appuio-cloudscale-lpg-2:acme-corp:sparkling-sound-1234")
 	require.NoError(t, err)
 	require.Equal(t, sourcekey.SourceKey{
-		Query:     "appuio_cloud_storage",
-		Zone:      "c-appuio-cloudscale-lpg-2",
-		Tenant:    "acme-corp",
-		Namespace: "sparkling-sound-1234",
-		Parts:     []string{"appuio_cloud_storage", "c-appuio-cloudscale-lpg-2", "acme-corp", "sparkling-sound-1234"},
+		Parts: []string{"appuio_cloud_storage", "c-appuio-cloudscale-lpg-2", "acme-corp", "sparkling-sound-1234"},
 	}, k)
 }
 
@@ -42,44 +33,27 @@ func TestParseWithEmptyClass(t *testing.T) {
 	k, err := sourcekey.Parse("appuio_cloud_storage:c-appuio-cloudscale-lpg-2:acme-corp:sparkling-sound-1234:")
 	require.NoError(t, err)
 	require.Equal(t, sourcekey.SourceKey{
-		Query:     "appuio_cloud_storage",
-		Zone:      "c-appuio-cloudscale-lpg-2",
-		Tenant:    "acme-corp",
-		Namespace: "sparkling-sound-1234",
-		Parts:     []string{"appuio_cloud_storage", "c-appuio-cloudscale-lpg-2", "acme-corp", "sparkling-sound-1234"},
+		Parts: []string{"appuio_cloud_storage", "c-appuio-cloudscale-lpg-2", "acme-corp", "sparkling-sound-1234"},
 	}, k)
 }
 
 func TestStringWithClass(t *testing.T) {
 	key := sourcekey.SourceKey{
-		Query:     "appuio_cloud_storage",
-		Zone:      "c-appuio-cloudscale-lpg-2",
-		Tenant:    "acme-corp",
-		Namespace: "sparkling-sound-1234",
-		Class:     "ssd",
-		Parts:     []string{"appuio_cloud_storage", "c-appuio-cloudscale-lpg-2", "acme-corp", "sparkling-sound-1234", "ssd"},
+		Parts: []string{"appuio_cloud_storage", "c-appuio-cloudscale-lpg-2", "acme-corp", "sparkling-sound-1234", "ssd"},
 	}
 	require.Equal(t, "appuio_cloud_storage:c-appuio-cloudscale-lpg-2:acme-corp:sparkling-sound-1234:ssd", key.String())
 }
 
 func TestStringWithoutClass(t *testing.T) {
 	key := sourcekey.SourceKey{
-		Query:     "appuio_cloud_storage",
-		Zone:      "c-appuio-cloudscale-lpg-2",
-		Tenant:    "acme-corp",
-		Namespace: "sparkling-sound-1234",
-		Parts:     []string{"appuio_cloud_storage", "c-appuio-cloudscale-lpg-2", "acme-corp", "sparkling-sound-1234"},
+		Parts: []string{"appuio_cloud_storage", "c-appuio-cloudscale-lpg-2", "acme-corp", "sparkling-sound-1234"},
 	}
 	require.Equal(t, "appuio_cloud_storage:c-appuio-cloudscale-lpg-2:acme-corp:sparkling-sound-1234", key.String())
 }
 
 func TestGenerateSourceKeysWithoutClass(t *testing.T) {
 	keys := sourcekey.SourceKey{
-		Query:     "appuio_cloud_storage",
-		Zone:      "c-appuio-cloudscale-lpg-2",
-		Tenant:    "acme-corp",
-		Namespace: "sparkling-sound-1234",
-		Parts:     []string{"appuio_cloud_storage", "c-appuio-cloudscale-lpg-2", "acme-corp", "sparkling-sound-1234"},
+		Parts: []string{"appuio_cloud_storage", "c-appuio-cloudscale-lpg-2", "acme-corp", "sparkling-sound-1234"},
 	}.LookupKeys()
 
 	require.Equal(t, []string{
@@ -96,12 +70,7 @@ func TestGenerateSourceKeysWithoutClass(t *testing.T) {
 
 func TestGenerateSourceKeysWithClass(t *testing.T) {
 	keys := sourcekey.SourceKey{
-		Query:     "appuio_cloud_storage",
-		Zone:      "c-appuio-cloudscale-lpg-2",
-		Tenant:    "acme-corp",
-		Namespace: "sparkling-sound-1234",
-		Class:     "ssd",
-		Parts:     []string{"appuio_cloud_storage", "c-appuio-cloudscale-lpg-2", "acme-corp", "sparkling-sound-1234", "ssd"},
+		Parts: []string{"appuio_cloud_storage", "c-appuio-cloudscale-lpg-2", "acme-corp", "sparkling-sound-1234", "ssd"},
 	}.LookupKeys()
 
 	require.Equal(t, []string{
@@ -126,12 +95,7 @@ func TestGenerateSourceKeysWithClass(t *testing.T) {
 
 func TestGenerateSourceKeysWithSixElements(t *testing.T) {
 	keys := sourcekey.SourceKey{
-		Query:     "appuio_cloud_storage",
-		Zone:      "c-appuio-cloudscale-lpg-2",
-		Tenant:    "acme-corp",
-		Namespace: "sparkling-sound-1234",
-		Class:     "ssd",
-		Parts:     []string{"appuio_cloud_storage", "c-appuio-cloudscale-lpg-2", "acme-corp", "sparkling-sound-1234", "ssd", "exoscale"},
+		Parts: []string{"appuio_cloud_storage", "c-appuio-cloudscale-lpg-2", "acme-corp", "sparkling-sound-1234", "ssd", "exoscale"},
 	}.LookupKeys()
 
 	require.Equal(t, []string{

@@ -13,13 +13,6 @@ const elementSeparator = ":"
 // SourceKey represents a source key to look up dimensions objects (currently queries and products).
 // It implements the lookup logic found in https://kb.vshn.ch/appuio-cloud/references/architecture/metering-data-flow.html#_system_idea.
 type SourceKey struct {
-	Query     string
-	Zone      string
-	Tenant    string
-	Namespace string
-
-	Class string
-
 	Parts []string
 }
 
@@ -29,13 +22,13 @@ func Parse(raw string) (SourceKey, error) {
 	if parts[len(parts)-1] == "" {
 		parts = parts[0 : len(parts)-1]
 	}
-	if len(parts) == 4 {
-		return SourceKey{parts[0], parts[1], parts[2], parts[3], "", parts}, nil
-	} else if len(parts) >= 5 {
-		return SourceKey{parts[0], parts[1], parts[2], parts[3], parts[4], parts}, nil
+
+	if len(parts) < 4 {
+		return SourceKey{}, fmt.Errorf("expected key with at least 4 elements separated by `%s` got %d", elementSeparator, len(parts))
 	}
 
-	return SourceKey{}, fmt.Errorf("expected key with at least 4 elements separated by `%s` got %d", elementSeparator, len(parts))
+	return SourceKey{parts}, nil
+
 }
 
 // String returns the string representation "query:zone:tenant:namespace:class" of the key.

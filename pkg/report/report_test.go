@@ -36,7 +36,7 @@ const promTestquery = `
 			),
 			"product", "my-product:my-cluster:my-tenant:my-namespace", "", ""
 		),
-		"tenant", "my-tenant", "", ""
+		"tenant_id", "my-tenant", "", ""
 	)
 `
 const promBarTestquery = `
@@ -48,7 +48,7 @@ const promBarTestquery = `
 			),
 			"product", "bar-product:my-cluster:my-tenant:my-namespace", "", ""
 		),
-		"tenant", "my-tenant", "", ""
+		"tenant_id", "my-tenant", "", ""
 	)
 `
 
